@@ -1,1 +1,42 @@
 /* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Theme Extensions */
+@layer base {
+  html {
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #f0f4f8 0%, #e0e7ff 100%);
+    min-height: 100vh;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-gradient-to-r from-blue-600 to-teal-500 text-white font-semibold px-6 py-2 rounded-lg shadow-md hover:from-blue-700 hover:to-teal-600 transition-all duration-200;
+  }
+  .btn-secondary {
+    @apply bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold px-6 py-2 rounded-lg shadow-md hover:from-purple-700 hover:to-pink-600 transition-all duration-200;
+  }
+  .card {
+    @apply bg-white rounded-2xl shadow-xl p-8 border border-gray-100;
+  }
+  .section-bg {
+    @apply bg-gradient-to-br from-blue-50 via-purple-50 to-teal-50;
+  }
+}
+
+/* Accent colors for highlights */
+:root {
+  --color-accent: #6366f1;
+  --color-accent2: #06b6d4;
+  --color-success: #22c55e;
+  --color-warning: #f59e42;
+  --color-danger: #ef4444;
+}

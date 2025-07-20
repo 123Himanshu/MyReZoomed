@@ -7,7 +7,7 @@ import { ResumeData, ResumeTemplate, ATSScore, EnhancedResume } from "../models/
   providedIn: "root",
 })
 export class ResumeService {
-  private baseUrl = "http://localhost:8000/api" // Backend URL
+  private baseUrl = "http://localhost:8080/api" // Backend URL
   private resumeDataSubject = new BehaviorSubject<ResumeData | null>(null)
   private selectedTemplateSubject = new BehaviorSubject<ResumeTemplate | null>(null)
   private enhancedResumeSubject = new BehaviorSubject<EnhancedResume | null>(null)

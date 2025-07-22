@@ -5,181 +5,240 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${personalInfo.fullName} - Resume</title>
     <style>
-        @page {
-            size: A4;
-            margin: 0.5in;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
         
         body {
-            font-family: 'Arial', sans-serif;
-            line-height: 1.4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
             color: #333;
-            margin: 0;
-            padding: 0;
-            font-size: 11pt;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: white;
         }
         
         .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            margin: -40px -20px 40px -20px;
             text-align: center;
-            border-bottom: 2px solid #2c5aa0;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
         }
         
         .name {
-            font-size: 24pt;
-            font-weight: bold;
-            color: #2c5aa0;
-            margin-bottom: 5px;
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
         
         .contact-info {
-            font-size: 10pt;
-            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+            opacity: 0.9;
+        }
+        
+        .contact-info a {
+            color: white;
+            text-decoration: none;
         }
         
         .section {
-            margin-bottom: 20px;
+            margin-bottom: 35px;
         }
         
         .section-title {
-            font-size: 14pt;
-            font-weight: bold;
-            color: #2c5aa0;
-            border-bottom: 1px solid #2c5aa0;
-            padding-bottom: 3px;
-            margin-bottom: 10px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-left: 4px solid #667eea;
+            padding-left: 15px;
         }
         
         .summary {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #555;
             text-align: justify;
-            margin-bottom: 15px;
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
         }
         
-        .skills-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 5px;
-            margin-bottom: 15px;
+        .experience-item, .education-item, .project-item {
+            margin-bottom: 30px;
+            background: #fafbff;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #764ba2;
+        }
+        
+        .job-header, .edu-header, .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        
+        .job-title, .degree, .project-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .company, .institution {
+            font-size: 15px;
+            color: #764ba2;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .date {
+            font-size: 13px;
+            color: #888;
+            background: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            white-space: nowrap;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .description {
+            font-size: 14px;
+            line-height: 1.7;
+            color: #555;
+            text-align: justify;
+        }
+        
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         
         .skill-item {
-            background-color: #f0f4f8;
-            padding: 4px 8px;
-            border-radius: 3px;
-            font-size: 10pt;
-            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
         }
         
-        .experience-item, .education-item {
-            margin-bottom: 15px;
+        .certifications-list, .languages-list {
+            list-style: none;
         }
         
-        .job-title {
-            font-weight: bold;
-            font-size: 12pt;
-            color: #2c5aa0;
+        .cert-item, .lang-item {
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #555;
+            background: #f8f9ff;
+            padding: 10px 15px;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
         }
         
-        .company {
-            font-weight: bold;
-            font-size: 11pt;
+        .cert-name, .lang-name {
+            font-weight: 700;
+            color: #667eea;
         }
         
-        .date-range {
-            font-style: italic;
-            color: #666;
-            font-size: 10pt;
-            float: right;
+        .technologies {
+            font-size: 13px;
+            color: #764ba2;
+            margin-top: 8px;
+            font-weight: 600;
         }
         
-        .job-description {
-            margin-top: 5px;
-            text-align: justify;
-        }
-        
-        .achievements {
-            margin-top: 5px;
-        }
-        
-        .achievement {
-            margin-left: 15px;
-            margin-bottom: 3px;
-        }
-        
-        .degree {
-            font-weight: bold;
-            font-size: 11pt;
-        }
-        
-        .institution {
-            font-style: italic;
-            color: #666;
-        }
-        
-        .clearfix::after {
-            content: "";
-            display: table;
-            clear: both;
+        @media print {
+            body {
+                padding: 20px;
+            }
+            .header {
+                background: #667eea !important;
+                -webkit-print-color-adjust: exact;
+            }
+            .section {
+                page-break-inside: avoid;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Header Section -->
+    <!-- Header -->
     <div class="header">
-        <div class="name">${personalInfo.fullName}</div>
-        <div class="contact-info">
-            ${personalInfo.email} | ${personalInfo.phone}<br>
-            ${personalInfo.address}<br>
-            <#if personalInfo.linkedIn??>
-                ${personalInfo.linkedIn}<br>
-            </#if>
-            <#if personalInfo.website??>
-                ${personalInfo.website}
-            </#if>
-        </div>
+        <h1 class="name">${personalInfo.fullName}</h1>
+        <#if personalInfo.email?has_content>
+            <div class="contact-info">
+                <a href="mailto:${personalInfo.email}">${personalInfo.email}</a>
+            </div>
+        </#if>
+        <#if personalInfo.phone?has_content>
+            <div class="contact-info">${personalInfo.phone}</div>
+        </#if>
+        <#if personalInfo.address?has_content>
+            <div class="contact-info">${personalInfo.address}</div>
+        </#if>
+        <#if personalInfo.linkedIn?has_content>
+            <div class="contact-info">
+                <a href="${personalInfo.linkedIn}">${personalInfo.linkedIn}</a>
+            </div>
+        </#if>
+        <#if personalInfo.github?has_content>
+            <div class="contact-info">
+                <a href="${personalInfo.github}">${personalInfo.github}</a>
+            </div>
+        </#if>
     </div>
 
     <!-- Professional Summary -->
-    <#if summary??>
+    <#if summary?has_content>
         <div class="section">
-            <div class="section-title">PROFESSIONAL SUMMARY</div>
+            <h2 class="section-title">Professional Summary</h2>
             <div class="summary">${summary}</div>
         </div>
     </#if>
 
-    <!-- Core Competencies -->
-    <#if skills?? && skills?size > 0>
+    <!-- Skills -->
+    <#if skills?has_content && (skills?size > 0)>
         <div class="section">
-            <div class="section-title">CORE COMPETENCIES</div>
-            <div class="skills-grid">
+            <h2 class="section-title">Core Skills</h2>
+            <div class="skills-list">
                 <#list skills as skill>
-                    <div class="skill-item">${skill}</div>
+                    <span class="skill-item">${skill}</span>
                 </#list>
             </div>
         </div>
     </#if>
 
-    <!-- Professional Experience -->
-    <#if experience?? && experience?size > 0>
+    <!-- Work Experience -->
+    <#if experience?has_content && (experience?size > 0)>
         <div class="section">
-            <div class="section-title">PROFESSIONAL EXPERIENCE</div>
+            <h2 class="section-title">Professional Experience</h2>
             <#list experience as exp>
-                <div class="experience-item clearfix">
-                    <div class="job-title">${exp.position}</div>
-                    <div class="date-range">
-                        ${exp.startDate} - <#if exp.current>Present<#else>${exp.endDate}</#if>
-                    </div>
-                    <div class="company">${exp.company}</div>
-                    <#if exp.description??>
-                        <div class="job-description">${exp.description}</div>
-                    </#if>
-                    <#if exp.achievements?? && exp.achievements?size > 0>
-                        <div class="achievements">
-                            <#list exp.achievements as achievement>
-                                <div class="achievement">• ${achievement}</div>
-                            </#list>
+                <div class="experience-item">
+                    <div class="job-header">
+                        <div>
+                            <div class="job-title">${exp.jobTitle!exp.position!""}</div>
+                            <div class="company">${exp.company}</div>
                         </div>
+                        <div class="date">
+                            ${exp.startDate} - ${formatDate(exp.endDate)}
+                        </div>
+                    </div>
+                    <#if exp.description?has_content>
+                        <div class="description">${exp.description}</div>
                     </#if>
                 </div>
             </#list>
@@ -187,25 +246,78 @@
     </#if>
 
     <!-- Education -->
-    <#if education?? && education?size > 0>
+    <#if education?has_content && (education?size > 0)>
         <div class="section">
-            <div class="section-title">EDUCATION</div>
+            <h2 class="section-title">Education</h2>
             <#list education as edu>
-                <div class="education-item clearfix">
-                    <div class="degree">${edu.degree} in ${edu.field}</div>
-                    <div class="date-range">${edu.endDate}</div>
-                    <div class="institution">${edu.institution}</div>
-                    <#if edu.gpa??>
-                        <div>GPA: ${edu.gpa}</div>
+                <div class="education-item">
+                    <div class="edu-header">
+                        <div>
+                            <div class="degree">${edu.degree}</div>
+                            <div class="institution">${edu.institution}</div>
+                        </div>
+                        <div class="date">${edu.year!edu.endDate!""}</div>
+                    </div>
+                    <#if edu.field?has_content>
+                        <div class="description">${edu.field}</div>
                     </#if>
                 </div>
             </#list>
         </div>
     </#if>
 
-    <!-- Footer -->
-    <div style="text-align: center; font-size: 8pt; color: #999; margin-top: 30px; border-top: 1px solid #ddd; padding-top: 10px;">
-        Generated on ${generatedDate}
-    </div>
+    <!-- Projects -->
+    <#if projects?has_content && (projects?size > 0)>
+        <div class="section">
+            <h2 class="section-title">Key Projects</h2>
+            <#list projects as project>
+                <div class="project-item">
+                    <div class="project-header">
+                        <div>
+                            <div class="project-name">${project.name}</div>
+                            <#if project.technologies?has_content>
+                                <div class="technologies">Tech Stack: ${project.technologies?join(" • ")}</div>
+                            </#if>
+                        </div>
+                        <#if project.endDate?has_content>
+                            <div class="date">${project.startDate!""} - ${project.endDate}</div>
+                        </#if>
+                    </div>
+                    <#if project.description?has_content>
+                        <div class="description">${project.description}</div>
+                    </#if>
+                </div>
+            </#list>
+        </div>
+    </#if>
+
+    <!-- Certifications -->
+    <#if certifications?has_content && (certifications?size > 0)>
+        <div class="section">
+            <h2 class="section-title">Certifications</h2>
+            <ul class="certifications-list">
+                <#list certifications as cert>
+                    <li class="cert-item">
+                        <span class="cert-name">${cert.name}</span> - ${cert.issuer}
+                        <#if cert.date?has_content> (${cert.date})</#if>
+                    </li>
+                </#list>
+            </ul>
+        </div>
+    </#if>
+
+    <!-- Languages -->
+    <#if languages?has_content && (languages?size > 0)>
+        <div class="section">
+            <h2 class="section-title">Languages</h2>
+            <ul class="languages-list">
+                <#list languages as lang>
+                    <li class="lang-item">
+                        <span class="lang-name">${lang.name}</span> - ${lang.proficiency}
+                    </li>
+                </#list>
+            </ul>
+        </div>
+    </#if>
 </body>
 </html>

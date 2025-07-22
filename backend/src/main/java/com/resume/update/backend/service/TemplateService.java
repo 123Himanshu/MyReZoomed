@@ -3,11 +3,12 @@ package com.resumeupdater.service;
 import com.resumeupdater.dto.ResumeTemplateDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StreamUtils;
 
-import java.util.ArrayList;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,102 +18,105 @@ public class TemplateService {
     private static final Logger logger = LoggerFactory.getLogger(TemplateService.class);
 
     /**
-     * Get list of available resume templates
+     * Get all available resume templates
      */
     public List<ResumeTemplateDto> getAvailableTemplates() {
-        logger.info("Retrieving available resume templates");
+        logger.info("Fetching available resume templates");
+
+        return Arrays.asList(
+            new ResumeTemplateDto(
+                "minimalist",
+                "Minimalist",
+                "Clean and simple design focusing on content with elegant spacing and typography",
+                "/assets/templates/minimalist-preview.png"
+            ),
+            new ResumeTemplateDto(
+                "modern-professional",
+                "Modern Professional",
+                "Contemporary design with accent colors, visual hierarchy, and modern layout elements",
+                "/assets/templates/modern-professional-preview.png"
+            ),
+            new ResumeTemplateDto(
+                "traditional",
+                "Traditional",
+                "Classic format preferred by traditional industries and conservative recruiters",
+                "/assets/templates/traditional-preview.png"
+            ),
+            new ResumeTemplateDto(
+                "creative",
+                "Creative",
+                "Innovative design with unique layout elements for creative professionals",
+                "/assets/templates/creative-preview.png"
+            ),
+            new ResumeTemplateDto(
+                "executive",
+                "Executive",
+                "Professional executive format with emphasis on leadership and achievements",
+                "/assets/templates/executive-preview.png"
+            )
+        );
+    }
+
+    /**
+     * Get template preview HTML
+     */
+    public String getTemplatePreview(String templateId) throws IOException {
+        logger.info("Getting preview for template: {}", templateId);
 
         try {
-            List<ResumeTemplateDto> templates = new ArrayList<>();
-            
-            // Scan for .ftl files in templates directory
-            PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-            Resource[] resources = resolver.getResources("classpath:templates/*.ftl");
-            
-            for (Resource resource : resources) {
-                String filename = resource.getFilename();
-                if (filename != null && filename.endsWith(".ftl")) {
-                    String templateId = filename.substring(0, filename.length() - 4); // Remove .ftl extension
-                    ResumeTemplateDto template = createTemplateDto(templateId);
-                    templates.add(template);
-                }
+            ClassPathResource resource = new ClassPathResource("templates/" + templateId + ".ftl");
+            if (!resource.exists()) {
+                throw new IOException("Template not found: " + templateId);
             }
-            
-            // If no templates found, return predefined templates
-            if (templates.isEmpty()) {
-                templates = getPredefinedTemplates();
-            }
-            
-            logger.info("Found {} available templates", templates.size());
-            return templates;
+
+            String templateContent = StreamUtils.copyToString(
+                resource.getInputStream(), 
+                StandardCharsets.UTF_8
+            );
+
+            // Return a simplified preview version
+            return generatePreviewHtml(templateId, templateContent);
+
+        } catch (IOException e) {
+            logger.error("Error loading template preview for: " + templateId, e);
+            throw e;
+        }
+    }
+
+    /**
+     * Check if template exists
+     */
+    public boolean templateExists(String templateId) {
+        try {
+            ClassPathResource resource = new ClassPathResource("templates/" + templateId + ".ftl");
+            return resource.exists();
         } catch (Exception e) {
-            logger.error("Error retrieving templates", e);
-            // Return predefined templates as fallback
-            return getPredefinedTemplates();
+            logger.error("Error checking template existence: " + templateId, e);
+            return false;
         }
     }
 
     /**
-     * Create template DTO from template ID
+     * Get template metadata
      */
-    private ResumeTemplateDto createTemplateDto(String templateId) {
-        ResumeTemplateDto template = new ResumeTemplateDto();
-        template.setId(templateId);
-        
-        // Set template properties based on ID
-        switch (templateId) {
-            case "modern-professional":
-                template.setName("Modern Professional");
-                template.setDescription("Clean and contemporary design perfect for tech and business professionals");
-                template.setCategory("modern");
-                break;
-            case "minimalist":
-                template.setName("Minimalist");
-                template.setDescription("Simple and elegant layout that focuses on content");
-                template.setCategory("modern");
-                break;
-            case "traditional":
-                template.setName("Traditional");
-                template.setDescription("Timeless design suitable for conservative industries");
-                template.setCategory("classic");
-                break;
-            case "executive":
-                template.setName("Executive");
-                template.setDescription("Professional layout for senior-level positions");
-                template.setCategory("classic");
-                break;
-            case "creative-designer":
-                template.setName("Creative Designer");
-                template.setDescription("Creative layout perfect for design and marketing roles");
-                template.setCategory("creative");
-                break;
-            case "artistic":
-                template.setName("Artistic");
-                template.setDescription("Bold and unique design for creative professionals");
-                template.setCategory("creative");
-                break;
-            default:
-                template.setName(templateId.replace("-", " ").toUpperCase());
-                template.setDescription("Professional resume template");
-                template.setCategory("modern");
-        }
-        
-        template.setPreviewUrl("/api/templates/" + templateId + "/preview");
-        
-        return template;
+    public ResumeTemplateDto getTemplateById(String templateId) {
+        return getAvailableTemplates().stream()
+            .filter(template -> template.getId().equals(templateId))
+            .findFirst()
+            .orElse(null);
     }
 
-    /**
-     * Get predefined templates when no .ftl files are found
-     */
-    private List<ResumeTemplateDto> getPredefinedTemplates() {
-        return Arrays.asList(
-            createTemplateDto("modern-professional"),
-            createTemplateDto("minimalist"),
-            createTemplateDto("traditional"),
-            createTemplateDto("executive"),
-            createTemplateDto("creative-designer"),
-            createTemplateDto("artistic")
-        );
+    private String generatePreviewHtml(String templateId, String templateContent) {
+        // Generate a preview version with sample data
+        return "<!DOCTYPE html>" +
+               "<html><head><title>Template Preview</title>" +
+               "<style>body { font-family: Arial, sans-serif; margin: 20px; }</style>" +
+               "</head><body>" +
+               "<h2>Template: " + templateId + "</h2>" +
+               "<p>This is a preview of the " + templateId + " template.</p>" +
+               "<div style='border: 1px solid #ccc; padding: 20px; margin: 10px 0;'>" +
+               "Sample resume content would appear here..." +
+               "</div>" +
+               "</body></html>";
     }
 }

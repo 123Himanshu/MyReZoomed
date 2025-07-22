@@ -1,20 +1,51 @@
 package com.resumeupdater.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
+
 import java.util.List;
 
 public class ExperienceDto {
-    
+
+    @JsonProperty("id")
     private String id;
+
+    @NotBlank(message = "Company name is required")
+    @JsonProperty("company")
     private String company;
+
+    @JsonProperty("position")
     private String position;
+
+    @JsonProperty("jobTitle")
+    private String jobTitle;
+
+    @NotBlank(message = "Start date is required")
+    @JsonProperty("startDate")
     private String startDate;
+
+    @JsonProperty("endDate")
     private String endDate;
-    private boolean current;
+
+    @JsonProperty("current")
+    private Boolean current = false;
+
+    @NotBlank(message = "Job description is required")
+    @JsonProperty("description")
     private String description;
+
+    @JsonProperty("achievements")
     private List<String> achievements;
 
     // Constructors
     public ExperienceDto() {}
+
+    public ExperienceDto(String company, String position, String startDate, String description) {
+        this.company = company;
+        this.position = position;
+        this.startDate = startDate;
+        this.description = description;
+    }
 
     // Getters and Setters
     public String getId() {
@@ -41,6 +72,14 @@ public class ExperienceDto {
         this.position = position;
     }
 
+    public String getJobTitle() {
+        return jobTitle;
+    }
+
+    public void setJobTitle(String jobTitle) {
+        this.jobTitle = jobTitle;
+    }
+
     public String getStartDate() {
         return startDate;
     }
@@ -57,11 +96,11 @@ public class ExperienceDto {
         this.endDate = endDate;
     }
 
-    public boolean isCurrent() {
+    public Boolean getCurrent() {
         return current;
     }
 
-    public void setCurrent(boolean current) {
+    public void setCurrent(Boolean current) {
         this.current = current;
     }
 
@@ -79,5 +118,20 @@ public class ExperienceDto {
 
     public void setAchievements(List<String> achievements) {
         this.achievements = achievements;
+    }
+
+    @Override
+    public String toString() {
+        return "ExperienceDto{" +
+                "id='" + id + '\'' +
+                ", company='" + company + '\'' +
+                ", position='" + position + '\'' +
+                ", jobTitle='" + jobTitle + '\'' +
+                ", startDate='" + startDate + '\'' +
+                ", endDate='" + endDate + '\'' +
+                ", current=" + current +
+                ", description='" + description + '\'' +
+                ", achievements=" + achievements +
+                '}';
     }
 }

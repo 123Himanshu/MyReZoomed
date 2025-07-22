@@ -1,176 +1,184 @@
 import { Component, type OnInit } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { Router } from "@angular/router"
-import { ResumeService } from "../../services/resume.service"
-import { ResumeData, EnhancedResume } from "../../models/resume.model"
+import { ResumeService, EnhancementResponse } from "../../services/resume.service"
+import type { ResumeData } from "../../models/resume.model"
 
 @Component({
   selector: "app-enhanced-resume",
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="max-w-7xl mx-auto section-bg min-h-screen py-8">
+    <div class="max-w-7xl mx-auto">
       <div class="text-center mb-8">
-        <h2 class="text-3xl font-bold text-accent mb-4">AI-Enhanced Resume</h2>
-        <p class="text-lg text-gray-700">Review the AI-powered improvements to your resume</p>
+        <h2 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-300 mb-4">
+          AI-Powered Resume Enhancement
+        </h2>
+        <p class="text-lg text-gray-300">Powered by Gemini 1.5 Pro for professional content optimization</p>
       </div>
 
-      <div *ngIf="isEnhancing" class="text-center py-12">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto mb-4"></div>
-        <h3 class="text-lg font-medium text-gray-900 mb-2">Enhancing Your Resume...</h3>
-        <p class="text-gray-600">Our AI is analyzing and improving your content</p>
-      </div>
-
-      <div *ngIf="!isEnhancing && !enhancedResume" class="text-center py-12">
-        <p class="text-gray-600 mb-4">No resume data found. Please complete the previous steps first.</p>
-        <button (click)="router.navigate(['/upload'])"
-                class="btn-primary">
-          Start Over
-        </button>
-      </div>
-
-      <div *ngIf="enhancedResume && !isEnhancing" class="space-y-8">
-        <!-- Improvements Summary -->
-        <div class="bg-green-50 border border-green-200 rounded-lg p-6 card">
-          <h3 class="text-lg font-semibold text-green-800 mb-4">✨ AI Improvements Applied</h3>
-          <ul class="space-y-2">
-            <li *ngFor="let improvement of enhancedResume.improvements"
-                class="flex items-start">
-              <svg class="w-5 h-5 text-green-600 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-              </svg>
-              <span class="text-green-700">{{ improvement }}</span>
-            </li>
-          </ul>
+      <!-- Enhancement Controls -->
+      <div class="bg-gray-800 rounded-xl shadow-xl border border-gray-700 p-6 mb-8">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="text-lg font-semibold text-gray-100">Enhancement Options</h3>
+            <p class="text-gray-400">Choose what to enhance with AI</p>
+          </div>
+          <div class="flex space-x-4">
+            <button 
+              (click)="enhanceResume()"
+              [disabled]="isEnhancing"
+              class="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-medium rounded-md shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+              <span *ngIf="!isEnhancing">Enhance Full Resume</span>
+              <span *ngIf="isEnhancing" class="flex items-center">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Enhancing...
+              </span>
+            </button>
+          </div>
         </div>
+      </div>
 
-        <!-- AI Suggestions -->
-        <div *ngIf="enhancedResume.aiSuggestions.length > 0" class="bg-blue-50 border border-blue-200 rounded-lg p-6 card">
-          <h3 class="text-lg font-semibold text-blue-800 mb-4">💡 Additional Suggestions</h3>
-          <ul class="space-y-2">
-            <li *ngFor="let suggestion of enhancedResume.aiSuggestions"
-                class="flex items-start">
-              <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
-              </svg>
-              <span class="text-blue-700">{{ suggestion }}</span>
-            </li>
-          </ul>
-        </div>
-
-        <!-- Before/After Comparison -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <!-- Original Resume -->
-          <div class="card">
-            <div class="bg-gray-50 px-6 py-4 border-b">
-              <h3 class="text-lg font-semibold text-gray-900">Original Resume</h3>
+      <!-- Enhancement Results -->
+      <div *ngIf="enhancementResults" class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Original Resume -->
+        <div class="bg-gray-800 rounded-xl shadow-xl border border-gray-700 p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-semibold text-gray-100">Original Resume</h3>
+            <span class="px-3 py-1 bg-gray-700 text-gray-300 text-sm rounded-full">Before</span>
+          </div>
+          
+          <div class="space-y-6">
+            <!-- Original Summary -->
+            <div *ngIf="originalResume?.summary">
+              <h4 class="text-sm font-medium text-gray-400 mb-2">PROFESSIONAL SUMMARY</h4>
+        <p class="text-gray-300 text-sm leading-relaxed">{{ originalResume?.summary }}</p>
             </div>
-            <div class="p-6">
-              <div class="space-y-6">
-                <!-- Original Personal Info -->
-                <div class="text-center">
-                  <h2 class="text-xl font-bold text-gray-900">{{ enhancedResume.originalResume.personalInfo.fullName }}</h2>
-                  <div class="text-gray-600 mt-1 text-sm">
-                    <p>{{ enhancedResume.originalResume.personalInfo.email }} | {{ enhancedResume.originalResume.personalInfo.phone }}</p>
-                  </div>
-                </div>
 
-                <!-- Original Summary -->
-                <div *ngIf="enhancedResume.originalResume.summary">
-                  <h4 class="font-medium text-gray-900 mb-2">Summary</h4>
-                  <p class="text-gray-700 text-sm">{{ enhancedResume.originalResume.summary }}</p>
+            <!-- Original Experience -->
+        <div *ngIf="(originalResume?.experience?.length ?? 0) > 0">
+              <h4 class="text-sm font-medium text-gray-400 mb-3">WORK EXPERIENCE</h4>
+        <div *ngFor="let exp of originalResume?.experience?.slice(0, 2)" class="mb-4">
+                <div class="flex justify-between items-start mb-1">
+                  <h5 class="font-medium text-gray-200 text-sm">{{ exp.jobTitle || exp.position }}</h5>
+                  <span class="text-xs text-gray-400">{{ exp.startDate }} - {{ exp.endDate }}</span>
                 </div>
-
-                <!-- Original Skills -->
-                <div *ngIf="enhancedResume.originalResume.skills.length > 0">
-                  <h4 class="font-medium text-gray-900 mb-2">Skills</h4>
-                  <div class="flex flex-wrap gap-1">
-                    <span *ngFor="let skill of enhancedResume.originalResume.skills"
-                          class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
-                      {{ skill }}
-                    </span>
-                  </div>
-                </div>
+                <p class="text-xs text-gray-400 mb-2">{{ exp.company }}</p>
+                <p class="text-gray-300 text-xs leading-relaxed">{{ exp.description }}</p>
               </div>
             </div>
-          </div>
 
-          <!-- Enhanced Resume -->
-          <div class="card border-2 border-green-200">
-            <div class="bg-green-50 px-6 py-4 border-b border-green-200">
-              <h3 class="text-lg font-semibold text-green-800">Enhanced Resume</h3>
-            </div>
-            <div class="p-6">
-              <div class="space-y-6">
-                <!-- Enhanced Personal Info -->
-                <div class="text-center">
-                  <h2 class="text-xl font-bold text-gray-900">{{ enhancedResume.enhancedResume.personalInfo.fullName }}</h2>
-                  <div class="text-gray-600 mt-1 text-sm">
-                    <p>{{ enhancedResume.enhancedResume.personalInfo.email }} | {{ enhancedResume.enhancedResume.personalInfo.phone }}</p>
-                  </div>
-                </div>
-
-                <!-- Enhanced Summary -->
-                <div *ngIf="enhancedResume.enhancedResume.summary">
-                  <h4 class="font-medium text-gray-900 mb-2">Professional Summary</h4>
-                  <p class="text-gray-700 text-sm">{{ enhancedResume.enhancedResume.summary }}</p>
-                </div>
-
-                <!-- Enhanced Skills -->
-                <div *ngIf="enhancedResume.enhancedResume.skills.length > 0">
-                  <h4 class="font-medium text-gray-900 mb-2">Core Competencies</h4>
-                  <div class="flex flex-wrap gap-1">
-                    <span *ngFor="let skill of enhancedResume.enhancedResume.skills"
-                          class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
-                      {{ skill }}
-                    </span>
-                  </div>
-                </div>
+            <!-- Original Skills -->
+        <div *ngIf="(originalResume?.skills?.length ?? 0) > 0">
+              <h4 class="text-sm font-medium text-gray-400 mb-2">SKILLS</h4>
+              <div class="flex flex-wrap gap-1">
+        <span *ngFor="let skill of originalResume?.skills?.slice(0, 8)" 
+                      class="px-2 py-1 bg-gray-700 text-gray-300 text-xs rounded">
+                  {{ skill }}
+                </span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Accept/Reject Options -->
-        <div class="bg-white rounded-lg shadow-lg p-6 card">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Choose Your Version</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button (click)="useOriginal()"
-                    class="p-4 border-2 border-gray-300 rounded-lg hover:border-gray-400 transition-colors text-left"
-                    [class.border-blue-500]="selectedVersion === 'original'"
-                    [class.bg-blue-50]="selectedVersion === 'original'">
-              <h4 class="font-medium text-gray-900 mb-2">Keep Original</h4>
-              <p class="text-gray-600 text-sm">Use your original resume content without AI enhancements</p>
-            </button>
+        <!-- Enhanced Resume -->
+        <div class="bg-gray-800 rounded-xl shadow-xl border border-green-700 p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-semibold text-gray-100">Enhanced Resume</h3>
+            <span class="px-3 py-1 bg-green-700 text-green-200 text-sm rounded-full">After AI</span>
+          </div>
+          
+          <div class="space-y-6">
+            <!-- Enhanced Summary -->
+            <div *ngIf="enhancedResume?.summary">
+              <h4 class="text-sm font-medium text-green-400 mb-2">PROFESSIONAL SUMMARY</h4>
+        <p class="text-gray-200 text-sm leading-relaxed">{{ enhancedResume?.summary }}</p>
+            </div>
 
-            <button (click)="useEnhanced()"
-                    class="p-4 border-2 border-green-300 rounded-lg hover:border-green-400 transition-colors text-left"
-                    [class.border-green-500]="selectedVersion === 'enhanced'"
-                    [class.bg-green-50]="selectedVersion === 'enhanced'">
-              <h4 class="font-medium text-gray-900 mb-2">Use Enhanced Version</h4>
-              <p class="text-gray-600 text-sm">Apply all AI improvements and optimizations</p>
-            </button>
+            <!-- Enhanced Experience -->
+        <div *ngIf="(enhancedResume?.experience?.length ?? 0) > 0">
+              <h4 class="text-sm font-medium text-green-400 mb-3">WORK EXPERIENCE</h4>
+        <div *ngFor="let exp of enhancedResume?.experience?.slice(0, 2)" class="mb-4">
+                <div class="flex justify-between items-start mb-1">
+                  <h5 class="font-medium text-gray-100 text-sm">{{ exp.jobTitle || exp.position }}</h5>
+                  <span class="text-xs text-gray-400">{{ exp.startDate }} - {{ exp.endDate }}</span>
+                </div>
+                <p class="text-xs text-gray-400 mb-2">{{ exp.company }}</p>
+                <p class="text-gray-200 text-xs leading-relaxed">{{ exp.description }}</p>
+              </div>
+            </div>
+
+            <!-- Enhanced Skills -->
+        <div *ngIf="(enhancedResume?.skills?.length ?? 0) > 0">
+              <h4 class="text-sm font-medium text-green-400 mb-2">SKILLS</h4>
+              <div class="flex flex-wrap gap-1">
+        <span *ngFor="let skill of enhancedResume?.skills?.slice(0, 8)" 
+                      class="px-2 py-1 bg-green-900/30 text-green-200 text-xs rounded border border-green-800/30">
+                  {{ skill }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Improvements Made -->
+      <div *ngIf="enhancementResults?.improvements" class="bg-gray-800 rounded-xl shadow-xl border border-gray-700 p-6 mb-8">
+        <h3 class="text-xl font-semibold text-gray-100 mb-4 flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Improvements Made
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div *ngFor="let improvement of enhancementResults?.improvements" 
+               class="flex items-start p-4 bg-green-900/20 border border-green-800/30 rounded-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-green-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span class="text-green-200 text-sm">{{ improvement }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Suggestions -->
+      <div *ngIf="enhancementResults?.aiSuggestions" class="bg-gray-800 rounded-xl shadow-xl border border-gray-700 p-6 mb-8">
+        <h3 class="text-xl font-semibold text-gray-100 mb-4 flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+          AI Suggestions for Further Improvement
+        </h3>
+        <div class="space-y-3">
+        <div *ngFor="let suggestion of enhancementResults?.aiSuggestions" 
+               class="flex items-start p-4 bg-blue-900/20 border border-blue-800/30 rounded-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-blue-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="text-blue-200 text-sm">{{ suggestion }}</span>
           </div>
         </div>
       </div>
 
       <!-- Action Buttons -->
-      <div *ngIf="!isEnhancing" class="mt-8 flex justify-between">
-        <button (click)="router.navigate(['/templates'])"
-                class="btn-secondary">
-          Back
+      <div class="flex justify-between">
+        <button (click)="router.navigate(['/preview'])"
+                class="px-6 py-2 border border-gray-600 rounded-md text-gray-300 hover:bg-gray-700 transition-colors">
+          Back to Preview
         </button>
-
-        <div class="space-x-4">
-          <button (click)="regenerateEnhancement()"
-                  class="btn-secondary">
-            Regenerate
+        
+        <div class="flex space-x-4">
+          <button *ngIf="enhancementResults" 
+                  (click)="applyEnhancements()"
+                  class="px-6 py-2 bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600 text-white font-medium rounded-md shadow-lg hover:shadow-xl transition-all duration-200">
+            Apply Enhancements
           </button>
-
-          <button (click)="continueToATS()"
-                  [disabled]="!selectedVersion"
-                  class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
-            Continue to ATS Score
+          <button (click)="router.navigate(['/templates'])"
+                  class="px-6 py-2 bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600 text-white font-medium rounded-md shadow-lg hover:shadow-xl transition-all duration-200">
+            Choose Template
           </button>
         </div>
       </div>
@@ -179,9 +187,10 @@ import { ResumeData, EnhancedResume } from "../../models/resume.model"
   styles: [],
 })
 export class EnhancedResumeComponent implements OnInit {
-  enhancedResume: EnhancedResume | null = null
+  originalResume: ResumeData | null = null
+  enhancedResume: ResumeData | null = null
+  enhancementResults: EnhancementResponse | null = null
   isEnhancing = false
-  selectedVersion: "original" | "enhanced" | null = null
 
   constructor(
     private resumeService: ResumeService,
@@ -189,88 +198,34 @@ export class EnhancedResumeComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Check if enhanced resume already exists
-    this.enhancedResume = this.resumeService.getEnhancedResume()
+    this.originalResume = this.resumeService.getResumeData()
 
-    if (!this.enhancedResume) {
-      this.enhanceResume()
+    if (!this.originalResume) {
+      this.router.navigate(["/upload"])
     }
   }
 
   enhanceResume(): void {
-    const resumeData = this.resumeService.getCurrentResumeData()
-    if (!resumeData) {
-      this.router.navigate(["/upload"])
-      return
-    }
+    if (!this.originalResume) return
 
     this.isEnhancing = true
-
-    this.resumeService.enhanceResume(resumeData).subscribe({
-      next: (enhanced) => {
-        this.enhancedResume = enhanced
-        this.resumeService.updateEnhancedResume(enhanced)
+    this.resumeService.enhanceResume(this.originalResume).subscribe({
+      next: (results) => {
+        this.enhancementResults = results
+        this.enhancedResume = results.enhancedText
         this.isEnhancing = false
       },
       error: (error) => {
-        console.error("Failed to enhance resume:", error)
+        console.error("Enhancement failed:", error)
         this.isEnhancing = false
-        // Fallback to mock enhanced resume for demo
-        this.createMockEnhancedResume(resumeData)
       },
     })
   }
 
-  private createMockEnhancedResume(originalResume: ResumeData): void {
-    this.enhancedResume = {
-      originalResume,
-      enhancedResume: {
-        ...originalResume,
-        summary: originalResume.summary
-          ? `Results-driven professional with proven expertise in ${originalResume.skills.slice(0, 3).join(", ")}. ${originalResume.summary}`
-          : `Dynamic professional with extensive experience in ${originalResume.skills.slice(0, 3).join(", ")} and a track record of delivering exceptional results.`,
-        skills: [...originalResume.skills, "Leadership", "Strategic Planning", "Problem Solving"].filter(
-          (skill, index, arr) => arr.indexOf(skill) === index,
-        ),
-      },
-      improvements: [
-        "Enhanced professional summary with industry keywords",
-        "Optimized skills section for ATS compatibility",
-        "Improved action verbs and quantifiable achievements",
-        "Added relevant technical competencies",
-      ],
-      aiSuggestions: [
-        "Consider adding specific metrics and numbers to quantify your achievements",
-        "Include relevant certifications or training programs",
-        "Tailor keywords to match your target job descriptions",
-      ],
-    }
-    this.resumeService.updateEnhancedResume(this.enhancedResume)
-  }
-
-  useOriginal(): void {
-    this.selectedVersion = "original"
+  applyEnhancements(): void {
     if (this.enhancedResume) {
-      this.resumeService.updateResumeData(this.enhancedResume.originalResume)
-    }
-  }
-
-  useEnhanced(): void {
-    this.selectedVersion = "enhanced"
-    if (this.enhancedResume) {
-      this.resumeService.updateResumeData(this.enhancedResume.enhancedResume)
-    }
-  }
-
-  regenerateEnhancement(): void {
-    this.enhancedResume = null
-    this.selectedVersion = null
-    this.enhanceResume()
-  }
-
-  continueToATS(): void {
-    if (this.selectedVersion) {
-      this.router.navigate(["/ats-score"])
+      this.resumeService.updateResumeData(this.enhancedResume)
+      this.router.navigate(["/templates"])
     }
   }
 }

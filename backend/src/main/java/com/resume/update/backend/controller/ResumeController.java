@@ -1,8 +1,7 @@
 package com.resumeupdater.controller;
 
 import com.resumeupdater.dto.*;
-import com.resumeupdater.service.ResumeService;
-import com.resumeupdater.service.TemplateService;
+import com.resumeupdater.service.*;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = {"http://localhost:4200", "http://localhost:3000"})
+@CrossOrigin(origins = "*")
 public class ResumeController {
 
     private static final Logger logger = LoggerFactory.getLogger(ResumeController.class);
@@ -28,6 +27,9 @@ public class ResumeController {
 
     @Autowired
     private TemplateService templateService;
+
+    @Autowired
+    private PdfGenerator pdfGenerator;
 
     /**
      * Upload resume file and extract content via FastAPI
@@ -91,14 +93,14 @@ public class ResumeController {
     @GetMapping("/templates")
     public ResponseEntity<List<ResumeTemplateDto>> getTemplates() {
         try {
-            logger.info("Received request for available templates");
+            logger.info("Fetching available resume templates");
             
             List<ResumeTemplateDto> templates = templateService.getAvailableTemplates();
             logger.info("Returning {} templates", templates.size());
             
             return ResponseEntity.ok(templates);
         } catch (Exception e) {
-            logger.error("Error retrieving templates", e);
+            logger.error("Error fetching templates", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -109,21 +111,19 @@ public class ResumeController {
     @PostMapping("/generate-pdf")
     public ResponseEntity<byte[]> generatePdf(@Valid @RequestBody PdfGenerationRequestDto request) {
         try {
-            logger.info("Received PDF generation request for template: {}", request.getTemplateId());
+            logger.info("Generating PDF for template: {}", request.getTemplateId());
             
-            byte[] pdfBytes = resumeService.generatePdf(request.getResumeData(), request.getTemplateId());
+            byte[] pdfBytes = pdfGenerator.generatePdf(request.getResumeData(), request.getTemplateId());
             
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
             headers.setContentDispositionFormData("attachment", 
-                generatePdfFilename(request.getResumeData().getPersonalInfo().getFullName()));
+                request.getResumeData().getPersonalInfo().getFullName() + "_Resume.pdf");
             headers.setContentLength(pdfBytes.length);
             
-            logger.info("Successfully generated PDF ({} bytes)", pdfBytes.length);
+            logger.info("PDF generated successfully, size: {} bytes", pdfBytes.length);
+            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
             
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .body(pdfBytes);
         } catch (Exception e) {
             logger.error("Error generating PDF", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -149,11 +149,45 @@ public class ResumeController {
     }
 
     /**
+     * Provide real-time feedback for resume editing
+     */
+    @PostMapping("/feedback")
+    public ResponseEntity<FeedbackResponseDto> getFeedback(@Valid @RequestBody ResumeDataDto resumeData) {
+        try {
+            logger.info("Received real-time feedback request for: {}",
+                resumeData.getPersonalInfo().getFullName());
+
+            FeedbackResponseDto feedback = resumeService.getFeedback(resumeData);
+            logger.info("Successfully generated real-time feedback");
+
+            return ResponseEntity.ok(feedback);
+        } catch (Exception e) {
+            logger.error("Error generating real-time feedback", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
      * Health check endpoint
      */
     @GetMapping("/health")
-    public ResponseEntity<String> health() {
-        return ResponseEntity.ok("Resume Backend is running");
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("Resume Backend Service is running");
+    }
+
+    /**
+     * Get template preview
+     */
+    @GetMapping("/templates/{templateId}/preview")
+    public ResponseEntity<String> getTemplatePreview(@PathVariable String templateId) {
+        try {
+            logger.info("Fetching preview for template: {}", templateId);
+            String preview = templateService.getTemplatePreview(templateId);
+            return ResponseEntity.ok(preview);
+        } catch (Exception e) {
+            logger.error("Error fetching template preview for: " + templateId, e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
     private boolean isValidFileType(String contentType) {
@@ -162,10 +196,5 @@ public class ResumeController {
             contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document") ||
             contentType.equals("application/msword")
         );
-    }
-
-    private String generatePdfFilename(String fullName) {
-        String sanitizedName = fullName.replaceAll("[^a-zA-Z0-9\\s]", "").replaceAll("\\s+", "_");
-        return sanitizedName + "_Resume.pdf";
     }
 }

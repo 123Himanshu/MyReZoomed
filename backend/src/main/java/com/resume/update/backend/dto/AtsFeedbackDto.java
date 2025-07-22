@@ -1,14 +1,30 @@
 package com.resumeupdater.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class AtsFeedbackDto {
-    
+
+    @JsonProperty("category")
     private String category;
-    private int score;
+
+    @JsonProperty("score")
+    private Integer score;
+
+    @JsonProperty("message")
     private String message;
+
+    @JsonProperty("severity")
     private String severity;
 
     // Constructors
     public AtsFeedbackDto() {}
+
+    public AtsFeedbackDto(String category, Integer score, String message, String severity) {
+        this.category = category;
+        this.score = score;
+        this.message = message;
+        this.severity = severity;
+    }
 
     // Getters and Setters
     public String getCategory() {
@@ -19,11 +35,11 @@ public class AtsFeedbackDto {
         this.category = category;
     }
 
-    public int getScore() {
+    public Integer getScore() {
         return score;
     }
 
-    public void setScore(int score) {
+    public void setScore(Integer score) {
         this.score = score;
     }
 
@@ -41,5 +57,15 @@ public class AtsFeedbackDto {
 
     public void setSeverity(String severity) {
         this.severity = severity;
+    }
+
+    @Override
+    public String toString() {
+        return "AtsFeedbackDto{" +
+                "category='" + category + '\'' +
+                ", score=" + score +
+                ", message='" + message + '\'' +
+                ", severity='" + severity + '\'' +
+                '}';
     }
 }

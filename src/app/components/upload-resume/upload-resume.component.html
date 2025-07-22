@@ -1,1 +1,169 @@
-<p>upload-resume works!</p>
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-3xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-gray-900 mb-4">Upload Your Resume</h1>
+      <p class="text-xl text-gray-600">
+        Get started by uploading your current resume. We'll extract and analyze your information.
+      </p>
+    </div>
+
+    <!-- Upload Card -->
+    <div class="bg-white rounded-xl shadow-lg p-8">
+      <!-- File Upload Area -->
+      <div 
+        class="border-2 border-dashed rounded-lg p-8 text-center transition-colors duration-200"
+        [class.border-blue-400]="dragOver"
+        [class.bg-blue-50]="dragOver"
+        [class.border-gray-300]="!dragOver"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onDrop($event)"
+      >
+        <div class="space-y-4">
+          <!-- Upload Icon -->
+          <div class="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+            </svg>
+          </div>
+
+          <!-- Upload Text -->
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">
+              Drop your resume here, or 
+              <label class="text-blue-600 hover:text-blue-500 cursor-pointer underline">
+                browse
+                <input 
+                  type="file" 
+                  class="hidden" 
+                  accept=".pdf,.doc,.docx"
+                  (change)="onFileSelected($event)"
+                >
+              </label>
+            </h3>
+            <p class="text-sm text-gray-500">
+              Supports PDF, DOC, and DOCX files up to 10MB
+            </p>
+          </div>
+
+          <!-- Selected File Info -->
+          <div *ngIf="selectedFile" class="bg-gray-50 rounded-lg p-4 text-left">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-gray-900">{{ selectedFile.name }}</p>
+                  <p class="text-xs text-gray-500">{{ formatFileSize(selectedFile.size) }}</p>
+                </div>
+              </div>
+              <button 
+                type="button"
+                class="text-gray-400 hover:text-gray-600"
+                (click)="removeFile()"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div class="mt-4 space-y-2">
+        <div *ngIf="successMessage" class="bg-green-50 border border-green-200 rounded-md p-3">
+          <div class="flex">
+            <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            <p class="ml-2 text-sm text-green-700">{{ successMessage }}</p>
+          </div>
+        </div>
+
+        <div *ngIf="errorMessage" class="bg-red-50 border border-red-200 rounded-md p-3">
+          <div class="flex">
+            <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <p class="ml-2 text-sm text-red-700">{{ errorMessage }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upload Progress -->
+      <div *ngIf="isUploading" class="mt-6">
+        <div class="flex items-center justify-between text-sm text-gray-600 mb-2">
+          <span>Uploading and processing...</span>
+          <span>{{ uploadProgress }}%</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div 
+            class="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out"
+            [style.width.%]="uploadProgress"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Upload Button -->
+      <div class="mt-6">
+        <button
+          type="button"
+          class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+          [disabled]="!selectedFile || isUploading"
+          (click)="uploadResume()"
+        >
+          <span *ngIf="!isUploading">Upload & Process Resume</span>
+          <span *ngIf="isUploading" class="flex items-center justify-center">
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Processing...
+          </span>
+        </button>
+      </div>
+
+      <!-- Features List -->
+      <div class="mt-8 border-t pt-6">
+        <h4 class="text-lg font-medium text-gray-900 mb-4">What happens next?</h4>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="flex items-start space-x-3">
+            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <span class="text-blue-600 font-semibold text-sm">1</span>
+            </div>
+            <div>
+              <h5 class="font-medium text-gray-900">Extract Content</h5>
+              <p class="text-sm text-gray-600">We'll parse your resume and extract all information</p>
+            </div>
+          </div>
+          <div class="flex items-start space-x-3">
+            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <span class="text-blue-600 font-semibold text-sm">2</span>
+            </div>
+            <div>
+              <h5 class="font-medium text-gray-900">AI Enhancement</h5>
+              <p class="text-sm text-gray-600">Our AI will suggest improvements and optimizations</p>
+            </div>
+          </div>
+          <div class="flex items-start space-x-3">
+            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <span class="text-blue-600 font-semibold text-sm">3</span>
+            </div>
+            <div>
+              <h5 class="font-medium text-gray-900">ATS Scoring</h5>
+              <p class="text-sm text-gray-600">Get detailed feedback on ATS compatibility</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

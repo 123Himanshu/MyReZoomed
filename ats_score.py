@@ -7,10 +7,7 @@ import logging
 from typing import List, Dict, Optional
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
 import re
-from collections import Counter
-
 from models import ResumeData, ATSScore, ATSFeedback
 
 logger = logging.getLogger(__name__)

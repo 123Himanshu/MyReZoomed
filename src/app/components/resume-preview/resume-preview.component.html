@@ -1,1 +1,590 @@
-<p>resume-preview works!</p>
+<div class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Resume Preview</h1>
+          <p class="text-gray-600 mt-2">Review and edit your resume information before proceeding</p>
+        </div>
+        <button
+          type="button"
+          class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+          (click)="goBack()"
+        >
+          ← Back to Upload
+        </button>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+      <div class="flex">
+        <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <p class="ml-2 text-sm text-red-700">{{ errorMessage }}</p>
+      </div>
+    </div>
+
+    <!-- Resume Content -->
+    <div *ngIf="resumeData" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Main Content -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Personal Information -->
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-gray-900">Personal Information</h2>
+            <button
+              type="button"
+              class="text-blue-600 hover:text-blue-700 text-sm font-medium"
+              (click)="editSection('personal')"
+              *ngIf="editingSection !== 'personal'"
+            >
+              Edit
+            </button>
+          </div>
+
+          <div *ngIf="editingSection !== 'personal'">
+            <div class="space-y-3">
+              <div>
+                <h3 class="text-2xl font-bold text-gray-900">{{ resumeData.personalInfo.fullName }}</h3>
+                <p class="text-gray-600">{{ resumeData.personalInfo.email }}</p>
+              </div>
+              <div class="flex flex-wrap gap-4 text-sm text-gray-600">
+                <span *ngIf="resumeData.personalInfo.phone">📞 {{ resumeData.personalInfo.phone }}</span>
+                <span *ngIf="resumeData.personalInfo.address">📍 {{ resumeData.personalInfo.address }}</span>
+                <a *ngIf="resumeData.personalInfo.linkedIn" [href]="resumeData.personalInfo.linkedIn" target="_blank" class="text-blue-600 hover:underline">
+                  💼 LinkedIn
+                </a>
+                <a *ngIf="resumeData.personalInfo.website" [href]="resumeData.personalInfo.website" target="_blank" class="text-blue-600 hover:underline">
+                  🌐 Website
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="editingSection === 'personal'" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                <input
+                  type="text"
+                  [(ngModel)]="resumeData.personalInfo.fullName"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input
+                  type="email"
+                  [(ngModel)]="resumeData.personalInfo.email"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                <input
+                  type="text"
+                  [(ngModel)]="resumeData.personalInfo.phone"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                <input
+                  type="text"
+                  [(ngModel)]="resumeData.personalInfo.address"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">LinkedIn</label>
+                <input
+                  type="url"
+                  [(ngModel)]="resumeData.personalInfo.linkedIn"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Website</label>
+                <input
+                  type="url"
+                  [(ngModel)]="resumeData.personalInfo.website"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+              </div>
+            </div>
+            <div class="flex space-x-3">
+              <button
+                type="button"
+                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                (click)="saveSection()"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
+                (click)="cancelEdit()"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Professional Summary -->
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-gray-900">Professional Summary</h2>
+            <button
+              type="button"
+              class="text-blue-600 hover:text-blue-700 text-sm font-medium"
+              (click)="editSection('summary')"
+              *ngIf="editingSection !== 'summary'"
+            >
+              Edit
+            </button>
+          </div>
+
+          <div *ngIf="editingSection !== 'summary'">
+            <p class="text-gray-700 leading-relaxed">
+              {{ resumeData.summary || 'No professional summary provided.' }}
+            </p>
+          </div>
+
+          <div *ngIf="editingSection === 'summary'">
+            <textarea
+              [(ngModel)]="resumeData.summary"
+              rows="4"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Write a compelling professional summary..."
+            ></textarea>
+            <div class="flex space-x-3 mt-3">
+              <button
+                type="button"
+                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                (click)="saveSection()"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
+                (click)="cancelEdit()"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skills -->
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-gray-900">Skills</h2>
+            <div class="flex space-x-2">
+              <button
+                type="button"
+                class="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                (click)="addSkill()"
+                *ngIf="editingSection !== 'skills'"
+              >
+                Add Skill
+              </button>
+              <button
+                type="button"
+                class="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                (click)="editSection('skills')"
+                *ngIf="editingSection !== 'skills'"
+              >
+                Edit
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="editingSection !== 'skills'">
+            <div class="flex flex-wrap gap-2">
+              <span
+                *ngFor="let skill of resumeData.skills"
+                class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+              >
+                {{ skill }}
+              </span>
+            </div>
+          </div>
+
+          <div *ngIf="editingSection === 'skills'">
+            <div class="space-y-2">
+              <div
+                *ngFor="let skill of resumeData.skills; let i = index; trackBy: trackByIndex"
+                class="flex items-center space-x-2"
+              >
+                <input
+                  type="text"
+                  [(ngModel)]="resumeData.skills[i]"
+                  class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter skill"
+                >
+                <button
+                  type="button"
+                  class="text-red-600 hover:text-red-700"
+                  (click)="removeSkill(i)"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="flex space-x-3 mt-4">
+              <button
+                type="button"
+                class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+                (click)="addSkill()"
+              >
+                Add Another
+              </button>
+              <button
+                type="button"
+                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                (click)="saveSection()"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
+                (click)="cancelEdit()"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Experience -->
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-gray-900">Work Experience</h2>
+            <div class="flex space-x-2">
+              <button
+                type="button"
+                class="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                (click)="addExperience()"
+                *ngIf="editingSection !== 'experience'"
+              >
+                Add Experience
+              </button>
+              <button
+                type="button"
+                class="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                (click)="editSection('experience')"
+                *ngIf="editingSection !== 'experience'"
+              >
+                Edit
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="editingSection !== 'experience'" class="space-y-6">
+            <div
+              *ngFor="let exp of resumeData.experience; let i = index"
+              class="border-l-4 border-blue-500 pl-4"
+            >
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <h3 class="text-lg font-semibold text-gray-900">{{ exp.position || exp.jobTitle }}</h3>
+                  <p class="text-blue-600 font-medium">{{ exp.company }}</p>
+                  <p class="text-sm text-gray-500">
+                    {{ exp.startDate }} - {{ exp.current ? 'Present' : exp.endDate }}
+                  </p>
+                  <p class="text-gray-700 mt-2">{{ exp.description }}</p>
+                  <ul *ngIf="exp.achievements && exp.achievements.length > 0" class="list-disc list-inside mt-2 text-gray-700">
+                    <li *ngFor="let achievement of exp.achievements">{{ achievement }}</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="editingSection === 'experience'" class="space-y-6">
+            <div
+              *ngFor="let exp of resumeData.experience; let i = index; trackBy: trackByIndex"
+              class="border border-gray-200 rounded-lg p-4"
+            >
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Position</label>
+                  <input
+                    type="text"
+                    [(ngModel)]="exp.position"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Company</label>
+                  <input
+                    type="text"
+                    [(ngModel)]="exp.company"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                  <input
+                    type="text"
+                    [(ngModel)]="exp.startDate"
+                    placeholder="MM/YYYY"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                  <div class="flex items-center space-x-2">
+                    <input
+                      type="text"
+                      [(ngModel)]="exp.endDate"
+                      placeholder="MM/YYYY"
+                      [disabled]="exp.current ?? false"
+                      class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                    >
+                    <label class="flex items-center">
+                      <input
+                        type="checkbox"
+                        [(ngModel)]="exp.current"
+                        class="mr-1"
+                      >
+                      <span class="text-sm text-gray-700">Current</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea
+                  [(ngModel)]="exp.description"
+                  rows="3"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                ></textarea>
+              </div>
+              <div class="flex justify-end">
+                <button
+                  type="button"
+                  class="text-red-600 hover:text-red-700 text-sm font-medium"
+                  (click)="removeExperience(i)"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+            <div class="flex space-x-3">
+              <button
+                type="button"
+                class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+                (click)="addExperience()"
+              >
+                Add Another
+              </button>
+              <button
+                type="button"
+                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                (click)="saveSection()"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
+                (click)="cancelEdit()"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Education -->
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-gray-900">Education</h2>
+            <div class="flex space-x-2">
+              <button
+                type="button"
+                class="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                (click)="addEducation()"
+                *ngIf="editingSection !== 'education'"
+              >
+                Add Education
+              </button>
+              <button
+                type="button"
+                class="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                (click)="editSection('education')"
+                *ngIf="editingSection !== 'education'"
+              >
+                Edit
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="editingSection !== 'education'" class="space-y-4">
+            <div
+              *ngFor="let edu of resumeData.education; let i = index"
+              class="border-l-4 border-green-500 pl-4"
+            >
+              <h3 class="text-lg font-semibold text-gray-900">{{ edu.degree }}</h3>
+              <p class="text-green-600 font-medium">{{ edu.institution }}</p>
+              <p class="text-sm text-gray-500">{{ edu.field }} • {{ edu.endDate || edu.year }}</p>
+              <p *ngIf="edu.gpa" class="text-sm text-gray-600">GPA: {{ edu.gpa }}</p>
+            </div>
+          </div>
+
+          <div *ngIf="editingSection === 'education'" class="space-y-4">
+            <div
+              *ngFor="let edu of resumeData.education; let i = index; trackBy: trackByIndex"
+              class="border border-gray-200 rounded-lg p-4"
+            >
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Institution</label>
+                  <input
+                    type="text"
+                    [(ngModel)]="edu.institution"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Degree</label>
+                  <input
+                    type="text"
+                    [(ngModel)]="edu.degree"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Field of Study</label>
+                  <input
+                    type="text"
+                    [(ngModel)]="edu.field"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Graduation Year</label>
+                  <input
+                    type="text"
+                    [(ngModel)]="edu.endDate"
+                    placeholder="YYYY"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                </div>
+              </div>
+              <div class="flex justify-end mt-4">
+                <button
+                  type="button"
+                  class="text-red-600 hover:text-red-700 text-sm font-medium"
+                  (click)="removeEducation(i)"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+            <div class="flex space-x-3">
+              <button
+                type="button"
+                class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+                (click)="addEducation()"
+              >
+                Add Another
+              </button>
+              <button
+                type="button"
+                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                (click)="saveSection()"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
+                (click)="cancelEdit()"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="space-y-6">
+        <!-- Job Description Input -->
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Job Description (Optional)</h3>
+          <p class="text-sm text-gray-600 mb-4">
+            Paste the job description to get better ATS scoring and tailored suggestions.
+          </p>
+          <textarea
+            [(ngModel)]="jobDescription"
+            rows="6"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Paste the job description here..."
+          ></textarea>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Next Steps</h3>
+          <div class="space-y-3">
+            <button
+              type="button"
+              class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+              (click)="proceedToATS()"
+            >
+              📊 Get ATS Score
+            </button>
+            <button
+              type="button"
+              class="w-full bg-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-700 transition-colors"
+              (click)="proceedToEnhancement()"
+            >
+              🤖 AI Enhancement
+            </button>
+            <button
+              type="button"
+              class="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 transition-colors"
+              (click)="proceedToTemplates()"
+            >
+              🎨 Choose Template
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Resume Stats</h3>
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span class="text-gray-600">Skills:</span>
+              <span class="font-medium">{{ resumeData.skills.length || 0 }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Experience:</span>
+              <span class="font-medium">{{ resumeData.experience.length || 0 }} positions</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Education:</span>
+              <span class="font-medium">{{ resumeData.education.length || 0 }} entries</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Summary:</span>
+              <span class="font-medium">{{ resumeData.summary ? 'Yes' : 'No' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

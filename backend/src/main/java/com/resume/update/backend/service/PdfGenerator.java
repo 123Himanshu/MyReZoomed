@@ -94,10 +94,60 @@ public class PdfGenerator {
         dataModel.put("experience", resumeData.getExperience());
         dataModel.put("education", resumeData.getEducation());
         
+        // Add new sections
+        if (resumeData.getProjects() != null) {
+            dataModel.put("projects", resumeData.getProjects());
+        }
+        
+        if (resumeData.getCertifications() != null) {
+            dataModel.put("certifications", resumeData.getCertifications());
+        }
+        
+        if (resumeData.getLanguages() != null) {
+            dataModel.put("languages", resumeData.getLanguages());
+        }
+        
+        if (resumeData.getUnexpectedFields() != null) {
+            dataModel.put("unexpectedFields", resumeData.getUnexpectedFields());
+        }
+        
         // Add utility functions
-        dataModel.put("currentYear", java.time.Year.now().getValue());
-        dataModel.put("generatedDate", java.time.LocalDate.now().toString());
+        dataModel.put("hasContent", new HasContentMethod());
+        dataModel.put("formatDate", new FormatDateMethod());
         
         return dataModel;
+    }
+
+    // Helper method classes for FreeMarker
+    public static class HasContentMethod implements freemarker.template.TemplateMethodModelEx {
+        @Override
+        public Object exec(java.util.List arguments) throws freemarker.template.TemplateModelException {
+            if (arguments.size() != 1) {
+                throw new freemarker.template.TemplateModelException("hasContent expects exactly one argument");
+            }
+            Object obj = arguments.get(0);
+            if (obj == null) return false;
+            if (obj instanceof String) {
+                return !((String) obj).trim().isEmpty();
+            }
+            if (obj instanceof java.util.Collection) {
+                return !((java.util.Collection<?>) obj).isEmpty();
+            }
+            return true;
+        }
+    }
+
+    public static class FormatDateMethod implements freemarker.template.TemplateMethodModelEx {
+        @Override
+        public Object exec(java.util.List arguments) throws freemarker.template.TemplateModelException {
+            if (arguments.size() != 1) {
+                throw new freemarker.template.TemplateModelException("formatDate expects exactly one argument");
+            }
+            Object dateObj = arguments.get(0);
+            if (dateObj == null || dateObj.toString().trim().isEmpty()) {
+                return "Present";
+            }
+            return dateObj.toString();
+        }
     }
 }

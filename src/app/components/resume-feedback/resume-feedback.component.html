@@ -1,0 +1,26 @@
+<div *ngIf="loading" class="text-center py-4">Loading feedback...</div>
+<div *ngIf="error" class="text-red-600 text-center py-4">{{ error }}</div>
+<div *ngIf="feedback && !loading">
+  <div class="mb-4">
+    <h3 class="text-lg font-semibold">ATS Score: <span [style.color]="feedback.ats_score >= 80 ? '#10b981' : feedback.ats_score >= 60 ? '#f59e0b' : '#ef4444'">{{ feedback.ats_score }}</span>/100</h3>
+    <ul class="mt-2 text-sm text-gray-700">
+      <li *ngFor="let msg of feedback.ats_feedback">• {{ msg }}</li>
+    </ul>
+  </div>
+  <div class="mb-4">
+    <h4 class="font-medium">Suggestions</h4>
+    <ul class="list-disc ml-6 text-sm text-blue-800">
+      <li *ngFor="let suggestion of feedback.suggestions">{{ suggestion }}</li>
+    </ul>
+  </div>
+  <div class="mb-4">
+    <h4 class="font-medium">Section Completeness</h4>
+    <ul class="text-sm">
+      <li>Personal Info: {{ getSectionStatus(feedback.completeness.personalInfo) }}</li>
+      <li>Summary: {{ getSectionStatus(feedback.completeness.summary) }}</li>
+      <li>Skills: {{ getSectionStatus(feedback.completeness.skills) }}</li>
+      <li>Experience: {{ getSectionStatus(feedback.completeness.experience) }}</li>
+      <li>Education: {{ getSectionStatus(feedback.completeness.education) }}</li>
+    </ul>
+  </div>
+</div>

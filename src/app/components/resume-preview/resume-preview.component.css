@@ -1,0 +1,44 @@
+.section-editing {
+  border: 2px solid #3b82f6;
+  background-color: #eff6ff;
+}
+
+.skill-tag {
+  transition: all 0.2s ease-in-out;
+}
+
+.skill-tag:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.experience-item {
+  transition: all 0.2s ease-in-out;
+}
+
+.experience-item:hover {
+  background-color: #f9fafb;
+}
+
+.edit-button {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.section-card:hover .edit-button {
+  opacity: 1;
+}
+
+.form-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.action-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.action-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}

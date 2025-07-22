@@ -4,17 +4,18 @@ import freemarker.template.Configuration;
 import freemarker.template.TemplateExceptionHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
+import org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean;
 
 @org.springframework.context.annotation.Configuration
 public class FreeMarkerConfig {
 
     @Bean
     @Primary
-    public Configuration freemarkerConfiguration() {
-        Configuration cfg = new Configuration(Configuration.VERSION_2_3_32);
+    public Configuration freemarkerConfig() throws Exception {
+        Configuration cfg = new Configuration(Configuration.VERSION_2_3_31);
         
         // Set template loader to load from classpath
-        cfg.setClassForTemplateLoading(this.getClass(), "/templates");
+        cfg.setClassForTemplateLoading(this.getClass(), "/templates/");
         
         // Set default encoding
         cfg.setDefaultEncoding("UTF-8");
